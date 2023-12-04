@@ -2,6 +2,7 @@ import { Schema, Prop, SchemaFactory } from '@nestjs/mongoose';
 
 @Schema()
 export class Student {
+  _id?: string;
   @Prop({ required: true })
   account_number: string;
   @Prop({ required: true })

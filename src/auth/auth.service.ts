@@ -15,6 +15,8 @@ import { Student } from './entities/student.entity';
 import { LoginDto } from './dto/login.dto';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
+import { RegisterStudentDto } from './dto';
+import { LoginResponse } from './interfaces/login-response.interface';
 
 @Injectable()
 export class AuthService {
@@ -48,14 +50,19 @@ export class AuthService {
     }
   }
 
-  async login(loginDto: LoginDto) {
+  async login(loginDto: LoginDto): Promise<LoginResponse> {
     const { email, password } = loginDto;
     const student = await this.studentModel.findOne({ email });
 
-    if (!student) throw new UnauthorizedException('invalid credentials');
-
-    if (bcryptjs.compareSync(password, student.password))
+    if (!student) {
+      console.log('no existe');
       throw new UnauthorizedException('invalid credentials');
+    }
+
+    if (!bcryptjs.compareSync(password, student.password)) {
+      console.log('password mala');
+      throw new UnauthorizedException('invalid credentials');
+    }
 
     const { password: _, ...rest } = student.toJSON();
 
@@ -65,8 +72,25 @@ export class AuthService {
     };
   }
 
-  findAll() {
-    return `This action returns all auth`;
+  async register(
+    registerStudentDto: RegisterStudentDto,
+  ): Promise<LoginResponse> {
+    const student = await this.create(registerStudentDto);
+
+    return {
+      student,
+      token: this.getJwtToken({ id: student._id }),
+    };
+  }
+
+  async finById(id: string) {
+    const student = await this.studentModel.findById(id);
+    const { password: _, ...rest } = student.toJSON();
+    return rest;
+  }
+
+  async findAll(): Promise<Student[]> {
+    return await this.studentModel.find();
   }
 
   findOne(id: number) {
@@ -82,7 +106,7 @@ export class AuthService {
   }
 
   getJwtToken(payload: JwtPayload) {
-    const token = this.jwtService.signAsync(payload);
+    const token = this.jwtService.sign(payload);
 
     return token;
   }
