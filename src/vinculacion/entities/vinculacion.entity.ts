@@ -27,11 +27,11 @@ export class Vinculacion {
   budget: number;
   @Prop({ required: true })
   description: string;
-  @Prop({
-    type: [{ type: Types.ObjectId, ref: Student.name }],
-  })
-  @Type(() => Student)
-  students: Student[];
+  // @Prop({
+  //   type: [{ type: Types.ObjectId, ref: Student.name }],
+  // })
+  // @Type(() => Student)
+  // students: Student[];
 }
 
 export const VinculacionSchema = SchemaFactory.createForClass(Vinculacion);

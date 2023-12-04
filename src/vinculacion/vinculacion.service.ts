@@ -1,11 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { CreateVinculacionDto } from './dto/create-vinculacion.dto';
 import { UpdateVinculacionDto } from './dto/update-vinculacion.dto';
+import { Vinculacion } from './entities/vinculacion.entity';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
 
 @Injectable()
 export class VinculacionService {
-  create(createVinculacionDto: CreateVinculacionDto) {
-    return 'This action adds a new vinculacion';
+  constructor(
+    @InjectModel(Vinculacion.name)
+    private vinculacionModel: Model<Vinculacion>,
+  ) {}
+
+  async create(createVinculacionDto: CreateVinculacionDto) {
+    console.log(createVinculacionDto);
+    const newVinculacion = new this.vinculacionModel({
+      ...createVinculacionDto,
+    });
+
+    await newVinculacion.save();
+
+    return newVinculacion.toJSON();
   }
 
   findAll() {
